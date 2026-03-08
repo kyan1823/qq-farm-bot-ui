@@ -4,7 +4,7 @@
 
 const { sendMsgAsync } = require('../utils/network');
 const { types } = require('../utils/proto');
-const { log } = require('../utils/utils');
+const { log, logWarn } = require('../utils/utils');
 const { getDateKey, getRewardSummary, createDailyCooldown } = require('./common');
 
 const DAILY_KEY = 'email_rewards';
@@ -59,16 +59,32 @@ function normalizeBoxType(v) {
 
 async function checkAndClaimEmails(force = false) {
     const canRun = dailyCooldown.canRun(force);
-    
+
     // 静默跳过已检查的情况，避免重复日志
     if (!canRun) {
         return { claimed: 0, rewardItems: 0 };
     }
 
     try {
+        // 使用 Promise.race 添加超时保护
+        const withTimeout = (promise, ms, label) => {
+            return Promise.race([
+                promise,
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error(`${label} 超时 ${ms}ms`)), ms)
+                )
+            ]);
+        };
+
         const [box1, box2] = await Promise.all([
-            getEmailList(1).catch(() => ({ emails: [] })),
-            getEmailList(2).catch(() => ({ emails: [] })),
+            withTimeout(getEmailList(1), 5000, 'box1').catch((e) => {
+                logWarn('邮箱', `boxType=1 失败: ${e.message}`, { module: 'email', event: 'get_email_error' });
+                return { emails: [] };
+            }),
+            withTimeout(getEmailList(2), 5000, 'box2').catch((e) => {
+                logWarn('邮箱', `boxType=2 失败: ${e.message}`, { module: 'email', event: 'get_email_error' });
+                return { emails: [] };
+            }),
         ]);
 
         const merged = new Map();
