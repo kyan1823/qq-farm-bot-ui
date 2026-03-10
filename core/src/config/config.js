@@ -7,7 +7,7 @@ const CONFIG = {
     serverUrl: 'wss://gate-obt.nqf.qq.com/prod/ws',
     clientVersion: '1.7.0.5_20260306',
     platform: 'qq',              // 平台: qq 或 wx (可通过 --wx 切换为微信)
-    os: 'iOS',
+    os: 'Android',
     heartbeatInterval: 25000,    // 心跳间隔 25秒
     farmCheckInterval: 2000,      // 兼容旧逻辑：自己农场固定巡查间隔(ms)
     friendCheckInterval: 10000,   // 兼容旧逻辑：好友固定巡查间隔(ms)
@@ -19,10 +19,10 @@ const CONFIG = {
     adminPassword: process.env.ADMIN_PASSWORD || 'admin',
     device_info: {
         client_version: "1.7.0.5_20260306",
-        sys_software: 'iOS 26.2.1',
+        sys_software: 'Android 16',
         network: 'wifi',
-        memory: '7672',
-        device_id: 'iPhone X<iPhone18,3>',
+        memory: '14672',
+        device_id: 'PJA110',
     }
 };
 
